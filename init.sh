@@ -134,7 +134,7 @@ ipv6 = true
 obfs = http
 EOF
 
-cd /root/snelldocker && docker-compose pull && docker-compose up -d
+cd /root/snelldocker && docker compose pull && docker compose up -d
 
 cd ~
 
