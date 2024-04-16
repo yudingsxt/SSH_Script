@@ -108,35 +108,5 @@ EOF
 
 exec zsh -l
 
-# Configure snell
-echo "Configuring Snell..."
-mkdir -p /root/snelldocker
-
-cat > /root/snelldocker/docker-compose.yml << EOF
-version: "3.8" 
-services:
-  snell:
-    image: accors/snell:latest
-    container_name: snell
-    restart: always
-    network_mode: host
-    volumes:
-      - ./snell.conf:/etc/snell-server.conf
-    environment:
-      - SNELL_URL=https://dl.nssurge.com/snell/snell-server-v4.0.1-linux-amd64.zip
-EOF
-
-cat > /root/snelldocker/snell.conf << EOF
-[snell-server]
-listen = ::0:14250
-psk = 8QYc9zTowGlChZDIce684lNcD5k6DhE
-ipv6 = true
-obfs = http
-EOF
-
-cd /root/snelldocker && docker compose pull && docker compose up -d
-
-cd ~
-
 echo "Initialization complete!"
 exit 0
