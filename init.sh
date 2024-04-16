@@ -5,13 +5,10 @@ echo "Updating APT sources..."
 cat > /etc/apt/sources.list << EOF
 deb https://deb.debian.org/debian/ bullseye main contrib non-free
 deb-src https://deb.debian.org/debian/ bullseye main contrib non-free
-
 deb https://deb.debian.org/debian/ bullseye-updates main contrib non-free
 deb-src https://deb.debian.org/debian/ bullseye-updates main contrib non-free
-
 deb https://deb.debian.org/debian/ bullseye-backports main contrib non-free
 deb-src https://deb.debian.org/debian/ bullseye-backports main contrib non-free
-
 deb https://deb.debian.org/debian-security/ bullseye-security main contrib non-free
 deb-src https://deb.debian.org/debian-security/ bullseye-security main contrib non-free
 EOF
@@ -76,13 +73,26 @@ elif ! which curl > /dev/null 2>&1; then
     exit 1
 fi
 
-curl -k -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed "s/\$REMOTE/https:\/\/github.com\/ohmyzsh\/ohmyzsh.git/g" | sed "/.*exec zsh.*/d" > $HOME/.temp
+yes | curl -k -sSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sed "s/\$REMOTE/https:\/\/github.com\/ohmyzsh\/ohmyzsh.git/g" | sed "/.*exec zsh.*/d" > $HOME/.temp
+
+cat <<EOF >> $HOME/.temp
+git clone https://github.com/spaceship-prompt/spaceship-prompt.git "\$ZSH/custom/themes/spaceship-prompt" --depth=1
+ln -s "\$ZSH/custom/themes/spaceship-prompt/spaceship.zsh-theme" "\$ZSH/custom/themes/spaceship.zsh-theme"
+echo -e "\n"
+git clone https://github.com/zsh-users/zsh-autosuggestions.git \${ZSH:-~/.oh-my-zsh}/custom/plugins/zsh-autosuggestions
+echo -e "\n"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \${ZSH:-~/.oh-my-zsh}/custom/plugins/zsh-syntax-highlighting
+echo -e "\n"
+git clone https://github.com/conda-incubator/conda-zsh-completion.git \${ZSH:-~/.oh-my-zsh}/custom/plugins/conda-zsh-completion
+echo -e "\n"
+EOF
 
 sh $HOME/.temp
 rm -rf $HOME/.temp
 
 sed -i "s/ZSH_THEME=\".*/ZSH_THEME=\"ys\"/g" $HOME/.zshrc
 sed -i "s/plugins=(git)/plugins=(git sudo zsh-autosuggestions zsh-syntax-highlighting conda-zsh-completion pip ufw docker docker-compose extract command-not-found z colorize colored-man-pages)/g" $HOME/.zshrc
+
 cat <<EOF >> $HOME/.zshrc
 # 关闭 git 显示
 SPACESHIP_GIT_SHOW=false
@@ -92,15 +102,11 @@ SPACESHIP_NODE_SHOW=false
 SPACESHIP_MAVEN_SHOW=false
 # 关闭 package 显示
 SPACESHIP_PACKAGE_SHOW=false
-
 zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
 EOF
 
-# 更改默认的 shell 为 zsh
-if ! chsh -s $(which zsh); then
-    echo "chsh command unsuccessful. Change your default shell manually."
-fi
+exec zsh -l
 
 # Configure snell
 echo "Configuring Snell..."
@@ -131,8 +137,6 @@ EOF
 cd /root/snelldocker && docker-compose pull && docker-compose up -d
 
 cd ~
-
-exec zsh -l
 
 echo "Initialization complete!"
 exit 0
