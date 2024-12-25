@@ -20,7 +20,7 @@ apt-get upgrade -y
 
 # 安装必要的软件
 echo "Installing necessary software..."
-apt-get install -y htop atop neofetch vim zip curl vnstat zsh sudo iperf3
+apt-get install -y neofetch vim zip curl vnstat zsh sudo iperf3 git
 
 # 安装Docker
 echo "Installing Docker..."
